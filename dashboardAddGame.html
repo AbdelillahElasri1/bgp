@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Game - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Same as main dashboard */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .admin-logo::before {
+            content: "🎮";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .admin-logo::after {
+            content: "⚙️";
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 10px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-nav a:hover, .admin-nav a.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .admin-nav a:hover::before {
+            transform: translateX(100%);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #ff6b6b;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-help {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .remove-image {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-image:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        /* Tags Input */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-remove {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        /* Difficulty Selector */
+        .difficulty-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .difficulty-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-option:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .difficulty-option.selected {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-color: transparent;
+        }
+
+        .difficulty-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .difficulty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+
+        .difficulty-option.selected .difficulty-dot,
+.difficulty-option:hover .difficulty-dot {
+            background: currentColor;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .btn-draft {
+            background: linear-gradient(45deg, #ffc107, #ff9800);
+            color: white;
+        }
+
+        .btn-draft:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+        }
+
+        /* Progress Indicator */
+        .form-progress {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-title {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            position: relative;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #ddd;
+            z-index: -1;
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active .step-circle {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .progress-step.completed .step-circle {
+            background: #4CAF50;
+        }
+
+        .step-label {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+
+        .progress-step.active .step-label {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .page-title {
+                font-size: 2em;
+            }
+
+            .form-container {
+                padding: 25px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .difficulty-selector {
+                flex-direction: column;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .progress-step::after {
+                display: none;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Loading Animation */
+        .form-loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="/adminDashboard.html" class="admin-logo">ImiGames Admin</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/adminDashboard.html">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a></li>
+                <li><a href="/game-management.html">
+                    <span class="nav-icon">🎮</span>
+                    Games Management
+                </a></li>
+                <li><a href="/dashboardAddGame.html" class="active">
+                    <span class="nav-icon">➕</span>
+                    Add New Game
+                </a></li>
+                <li><a href="/categoriesAdmin.html">
+                    <span class="nav-icon">📂</span>
+                    Categories
+                </a></li>
+                <li><a href="/add-category.html">
+                    <span class="nav-icon">🏷️</span>
+                    Add Category
+                </a></li>
+                <li><a href="/user-management.html">
+                    <span class="nav-icon">👥</span>
+                    Users Management
+                </a></li>
+                <li><a href="/statistics.html">
+                    <span class="nav-icon">📈</span>
+                    Statistics
+                </a></li>
+                <li><a href="/admin/settings">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </a></li>
+                <li><a href="/admin/reports">
+                    <span class="nav-icon">📋</span>
+                    Reports
+                </a></li>
+                <li><a href="/logout" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span>➕</span>
+                    Add New Game
+                </h1>
+                <p class="page-subtitle">Create and configure a new game for the ImiGames platform</p>
+            </div>
+
+            <!-- Form Progress -->
+            <div class="form-progress">
+                <div class="progress-title">Game Creation Progress</div>
+                <div class="progress-steps">
+                    <div class="progress-step active">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Basic Info</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Game Content</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Configuration</div>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Review & Publish</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="form-container">
+                <form id="addGameForm" enctype="multipart/form-data">
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>📝</span>
+                            Basic Information
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gameTitle" class="form-label required">Game Title</label>
+                                <input type="text" id="gameTitle" name="gameTitle" class="form-input" 
+                                       placeholder="Enter game title" required>
+                                <div class="form-help">Choose a catchy and descriptive title</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gameCategory" class="form-label required">Category</label>
+                                <select id="gameCategory" name="gameCategory" class="form-select" required>
+                                    <option value="">Select a category</option>
+                                    <option value="educational">📚 Educational</option>
+                                    <option value="puzzle">🧩 Puzzle</option>
+                                    <option value="adventure">🗺️ Adventure</option>
+                                    <option value="creative">🎨 Creative</option>
+                                    <option value="sports">⚽ Sports</option>
+                                    <option value="racing">🏎️ Racing</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="gameDescription" class="form-label required">Game Description</label>
+                                <textarea id="gameDescription" name="gameDescription" class="form-textarea" 
+                                         placeholder="Describe what makes this game special and fun for kids..." required></textarea>
+                                <div class="form-help">Write a compelling description that parents and kids will love</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Media Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>🎨</span>
+                            Game Media
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Game Thumbnail</label>
+                            <div class="file-upload-area" onclick="document.getElementById('gameImage').click()">
+                                <span class="upload-icon">🖼️</span>
+                                <div class="upload-text">Click to upload game thumbnail</div>
+                                <div class="upload-subtext">PNG, JPG or GIF up to 5MB</div>
+                                <input type="file" id="gameImage" class="file-input" accept="image/*" onchange="previewImage(this)">
+                            </div>
+                            <div class="image-preview" id="imagePreview">
+                                <img class="preview-image" id="previewImg" alt="Preview">
+                                <button type="button" class="remove-image" onclick="removeImage()">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameIcon" class="form-label required">Game Icon (Emoji)</label>
+                            <input type="text" id="gameIcon" name="gameIcon" class="form-input" 
+                                   placeholder="🎮" maxlength="2">
+                            <div class="form-help">Choose a fun emoji that represents your game</div>
+                        </div>
+                    </div>
+
+                    <!-- Game Configuration Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>⚙️</span>
+                            Game Configuration
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="ageRange" class="form-label required">Target Age Range</label>
+                                <select id="ageRange" name="ageRange" class="form-select" required>
+                                    <option value="">Select age range</option>
+                                    <option value="2-4">👶 Toddlers (2-4 years)</option>
+                                    <option value="4-6">🧒 Preschoolers (4-6 years)</option>
+                                    <option value="6-10">👦 School Kids (6-10 years)</option>
+                                    <option value="10-13">👧 Tweens (10-13 years)</option>
+                                    <option value="all">🌟 All Ages</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label required">Difficulty Level</label>
+                                <div class="difficulty-selector">
+                                    <div class="difficulty-option" data-difficulty="1" onclick="selectDifficulty(1)">
+                                        <div class="difficulty-dots">
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                        </div>
+                                        <span>Easy</span>
+                                    </div>
+                                    <div class="difficulty-option" data-difficulty="2" onclick="selectDifficulty(2)">
+                                        <div class="difficulty-dots">
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                        </div>
+                                        <span>Medium</span>
+                                    </div>
+                                    <div class="difficulty-option" data-difficulty="3" onclick="selectDifficulty(3)">
+                                        <div class="difficulty-dots">
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                            <span class="difficulty-dot"></span>
+                                        </div>
+                                        <span>Hard</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="gameDifficulty" name="gameDifficulty" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameTags" class="form-label">Tags</label>
+                            <input type="text" id="gameTags" class="form-input" 
+                                   placeholder="Type a tag and press Enter" onkeypress="addTag(event)">
+                            <div class="form-help">Add relevant tags to help users find your game</div>
+                            <div class="tags-container" id="tagsContainer"></div>
+                            <input type="hidden" id="gameTagsHidden" name="gameTags">
+                        </div>
+                    </div>
+
+                    <!-- Game Files Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>📁</span>
+                            Game Files
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label for="gameUrl" class="form-label required">Game URL or Embed Code</label>
+                            <textarea id="gameUrl" name="gameUrl" class="form-textarea" 
+                                     placeholder="Enter game URL or HTML embed code..." required></textarea>
+                            <div class="form-help">Provide the URL where the game is hosted or embed code</div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gameWidth" class="form-label">Game Width (px)</label>
+                                <input type="number" id="gameWidth" name="gameWidth" class="form-input" 
+                                       placeholder="800" min="300" max="1200">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="gameHeight" class="form-label">Game Height (px)</label>
+                                <input type="number" id="gameHeight" name="gameHeight" class="form-input" 
+                                       placeholder="600" min="300" max="800">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Educational Content Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>🎓</span>
+                            Educational Content (Optional)
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="learningObjectives" class="form-label">Learning Objectives</label>
+                                <textarea id="learningObjectives" name="learningObjectives" class="form-textarea" 
+                                         placeholder="What will kids learn from this game?"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="educationalSubjects" class="form-label">Educational Subjects</label>
+                                <select id="educationalSubjects" name="educationalSubjects" class="form-select" multiple>
+                                    <option value="math">Mathematics</option>
+                                    <option value="reading">Reading & Language</option>
+                                    <option value="science">Science</option>
+                                    <option value="social">Social Studies</option>
+                                    <option value="art">Art & Creativity</option>
+                                    <option value="music">Music</option>
+                                    <option value="logic">Logic & Problem Solving</option>
+                                </select>
+                                <div class="form-help">Hold Ctrl/Cmd to select multiple subjects</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="form-loading" id="formLoading">
+                        <div class="loading-spinner"></div>
+                        <div>Creating your game...</div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div class="success-message" id="successMessage">
+                        <h3>🎉 Game Created Successfully!</h3>
+                        <p>Your game has been submitted and is now pending review. You'll be notified once it's approved.</p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                            💾 Save as Draft
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            🚀 Submit for Review
+                        </button>
+                        <a href="/admin/games" class="btn btn-secondary">
+                            ❌ Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let selectedTags = [];
+        let selectedDifficulty = null;
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Preview uploaded image
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Remove image preview
+        function removeImage() {
+            document.getElementById('gameImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        // Select difficulty level
+        function selectDifficulty(level) {
+            // Remove previous selection
+            document.querySelectorAll('.difficulty-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelector(`[data-difficulty="${level}"]`).classList.add('selected');
+            
+            // Update hidden input
+            document.getElementById('gameDifficulty').value = level;
+            selectedDifficulty = level;
+            
+            // Update difficulty dots
+            updateDifficultyDots(level);
+        }
+
+        // Update difficulty dots visualization
+        function updateDifficultyDots(level) {
+            const selectedOption = document.querySelector(`[data-difficulty="${level}"]`);
+            const dots = selectedOption.querySelectorAll('.difficulty-dot');
+            
+            dots.forEach((dot, index) => {
+                if (index < level) {
+                    dot.style.backgroundColor = 'currentColor';
+                } else {
+                    dot.style.backgroundColor = '#ddd';
+                }
+            });
+        }
+
+        // Add tag functionality
+        function addTag(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = event.target;
+                const tag = input.value.trim();
+                
+                if (tag && !selectedTags.includes(tag)) {
+                    selectedTags.push(tag);
+                    renderTags();
+                    input.value = '';
+                    updateTagsInput();
+                }
+            }
+        }
+
+        // Render tags
+        function renderTags() {
+            const container = document.getElementById('tagsContainer');
+            container.innerHTML = selectedTags.map(tag => `
+                <div class="tag">
+                    <span>${tag}</span>
+                    <button type="button" class="tag-remove" onclick="removeTag('${tag}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove tag
+        function removeTag(tagToRemove) {
+            selectedTags = selectedTags.filter(tag => tag !== tagToRemove);
+            renderTags();
+            updateTagsInput();
+        }
+
+        // Update hidden tags input
+        function updateTagsInput() {
+            document.getElementById('gameTagsHidden').value = selectedTags.join(',');
+        }
+
+        // Save as draft
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('addGameForm'));
+            formData.append('status', 'draft');
+            
+            showLoading(true);
+            
+            // Simulate API call
+            setTimeout(() => {
+                showLoading(false);
+                showNotification('Game saved as draft successfully!', 'success');
+            }, 2000);
+        }
+
+        // Form submission
+        document.getElementById('addGameForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            showLoading(true);
+            
+            const formData = new FormData(this);
+            formData.append('status', 'pending');
+            
+            // Simulate API call
+            setTimeout(() => {
+                showLoading(false);
+                document.getElementById('successMessage').style.display = 'block';
+                
+                // Scroll to success message
+                document.getElementById('successMessage').scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Reset form after delay
+                setTimeout(() => {
+                    if (confirm('Game submitted successfully! Would you like to add another game?')) {
+                        this.reset();
+                        selectedTags = [];
+                        selectedDifficulty = null;
+                        renderTags();
+                        document.getElementById('imagePreview').style.display = 'none';
+                        document.getElementById('successMessage').style.display = 'none';
+                        document.querySelectorAll('.difficulty-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                    } else {
+                        window.location.href = '/admin/games';
+                    }
+                }, 3000);
+            }, 3000);
+        });
+
+        // Show/hide loading state
+        function showLoading(show) {
+            const loading = document.getElementById('formLoading');
+            const form = document.getElementById('addGameForm');
+            
+            if (show) {
+                loading.style.display = 'block';
+                form.style.opacity = '0.6';
+                form.style.pointerEvents = 'none';
+            } else {
+                loading.style.display = 'none';
+                form.style.opacity = '1';
+                form.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Form validation
+        function validateForm() {
+            const requiredFields = [
+                'gameTitle',
+                'gameCategory', 
+                'gameDescription',
+                'gameIcon',
+                'ageRange',
+                'gameUrl'
+            ];
+            
+            let isValid = true;
+            
+            // Check required text fields
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    showFieldError(field, 'This field is required');
+                    isValid = false;
+                } else {
+                    clearFieldError(field);
+                }
+            });
+            
+            // Check difficulty selection
+            if (!selectedDifficulty) {
+                showNotification('Please select a difficulty level', 'warning');
+                isValid = false;
+            }
+            
+            // Check image upload
+            const imageInput = document.getElementById('gameImage');
+            if (!imageInput.files || !imageInput.files[0]) {
+                showNotification('Please upload a game thumbnail', 'warning');
+                isValid = false;
+            }
+            
+            // Validate game icon (should be emoji)
+            const gameIcon = document.getElementById('gameIcon').value;
+            if (gameIcon && !isEmoji(gameIcon)) {
+                showFieldError(document.getElementById('gameIcon'), 'Please enter a valid emoji');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Show field error
+        function showFieldError(field, message) {
+            field.style.borderColor = '#ff6b6b';
+            
+            // Remove existing error message
+            const existingError = field.parentNode.querySelector('.field-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.style.color = '#ff6b6b';
+            errorDiv.style.fontSize = '0.9em';
+            errorDiv.style.marginTop = '5px';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        // Clear field error
+        function clearFieldError(field) {
+            field.style.borderColor = '#ddd';
+            const errorDiv = field.parentNode.querySelector('.field-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        // Check if string is emoji
+        function isEmoji(str) {
+            const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+            return emojiRegex.test(str);
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `admin-alert ${type}`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '10000';
+            notification.style.maxWidth = '300px';
+            notification.style.padding = '15px 20px';
+            notification.style.borderRadius = '10px';
+            notification.style.fontWeight = '600';
+            
+            const typeColors = {
+                info: { bg: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', border: '#2196F3' },
+                warning: { bg: 'rgba(255, 193, 7, 0.1)', color: '#FFC107', border: '#FFC107' },
+                success: { bg: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', border: '#4CAF50' },
+                error: { bg: 'rgba(244, 67, 54, 0.1)', color: '#F44336', border: '#F44336' }
+            };
+            
+            const colors = typeColors[type] || typeColors.info;
+            notification.style.background = colors.bg;
+            notification.style.color = colors.color;
+            notification.style.borderLeft = `4px solid ${colors.border}`;
+            
+            notification.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Auto-save functionality
+        let autoSaveTimer;
+        function setupAutoSave() {
+            const form = document.getElementById('addGameForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(() => {
+                        const formData = new FormData(form);
+                        // In real implementation, save to localStorage or send to server
+                        localStorage.setItem('gameFormDraft', JSON.stringify({
+                            timestamp: Date.now(),
+                            data: Object.fromEntries(formData.entries())
+                        }));
+                        
+                        // Show auto-save indicator
+                        const indicator = document.createElement('div');
+                        indicator.textContent = '💾 Auto-saved';
+                        indicator.style.position = 'fixed';
+                        indicator.style.bottom = '20px';
+                        indicator.style.right = '20px';
+                        indicator.style.background = 'rgba(76, 175, 80, 0.9)';
+                        indicator.style.color = 'white';
+                        indicator.style.padding = '10px 15px';
+                        indicator.style.borderRadius = '10px';
+                        indicator.style.fontSize = '0.9em';
+                        indicator.style.zIndex = '10000';
+                        
+                        document.body.appendChild(indicator);
+                        setTimeout(() => {
+                            if (document.body.contains(indicator)) {
+                                document.body.removeChild(indicator);
+                            }
+                        }, 2000);
+                    }, 3000); // Auto-save after 3 seconds of inactivity
+                });
+            });
+        }
+
+        // Load saved draft
+        function loadSavedDraft() {
+            const saved = localStorage.getItem('gameFormDraft');
+            if (saved) {
+                const draft = JSON.parse(saved);
+                const age = Date.now() - draft.timestamp;
+                
+                // Only load if draft is less than 24 hours old
+                if (age < 24 * 60 * 60 * 1000) {
+                    if (confirm('We found a saved draft from ' + new Date(draft.timestamp).toLocaleString() + '. Would you like to restore it?')) {
+                        // Restore form data
+                        Object.entries(draft.data).forEach(([key, value]) => {
+                            const element = document.querySelector(`[name="${key}"]`);
+                            if (element) {
+                                element.value = value;
+                            }
+                        });
+                        
+                        showNotification('Draft restored successfully!', 'success');
+                    }
+                }
+            }
+        }
+
+        // Update progress based on form completion
+        function updateProgress() {
+            const requiredFields = [
+                'gameTitle',
+                'gameCategory', 
+                'gameDescription',
+                'gameIcon',
+                'ageRange',
+                'gameUrl'
+            ];
+            
+            let completedFields = 0;
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && field.value.trim()) {
+                    completedFields++;
+                }
+            });
+            
+            // Check image upload
+            const imageInput = document.getElementById('gameImage');
+            if (imageInput.files && imageInput.files[0]) {
+                completedFields++;
+            }
+            
+            // Check difficulty selection
+            if (selectedDifficulty) {
+                completedFields++;
+            }
+            
+            const totalRequired = requiredFields.length + 2; // +2 for image and difficulty
+            const progressPercentage = (completedFields / totalRequired) * 100;
+            
+            // Update progress steps
+            const steps = document.querySelectorAll('.progress-step');
+            steps.forEach((step, index) => {
+                const stepPercentage = ((index + 1) / steps.length) * 100;
+                if (progressPercentage >= stepPercentage) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (progressPercentage >= stepPercentage - 25) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            });
+        }
+
+        // Setup form monitoring for progress updates
+        function setupProgressMonitoring() {
+            const form = document.getElementById('addGameForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', updateProgress);
+                input.addEventListener('change', updateProgress);
+            });
+        }
+
+        // Drag and drop functionality for file upload
+        function setupDragAndDrop() {
+            const uploadArea = document.querySelector('.file-upload-area');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.add('dragover');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => {
+                    uploadArea.classList.remove('dragover');
+                }, false);
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = document.getElementById('gameImage');
+                    fileInput.files = files;
+                    previewImage(fileInput);
+                }
+            }, false);
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAutoSave();
+            setupProgressMonitoring();
+            setupDragAndDrop();
+            loadSavedDraft();
+            updateProgress();
+            
+            // Add real-time validation
+            const form = document.getElementById('addGameForm');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', () => {
+                    if (input.hasAttribute('required') && !input.value.trim()) {
+                        showFieldError(input, 'This field is required');
+                    } else {
+                        clearFieldError(input);
+                    }
+                });
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            saveDraft();
+                            break;
+                        case 'Enter':
+                            if (e.shiftKey) {
+                                e.preventDefault();
+                                document.getElementById('addGameForm').dispatchEvent(new Event('submit'));
+                            }
+                            break;
+                    }
+                }
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Category - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .admin-logo::before {
+            content: "🎮";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .admin-logo::after {
+            content: "⚙️";
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 10px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-nav a:hover, .admin-nav a.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .admin-nav a:hover::before {
+            transform: translateX(100%);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        /* Existing Categories */
+        .existing-categories {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .existing-categories h2 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-preview:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .category-preview:hover::before {
+            transform: translateX(100%);
+        }
+
+        .category-icon-large {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .category-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .category-count {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn.edit {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+        }
+
+        .action-btn.delete {
+            background: linear-gradient(45deg, #F44336, #FF5722);
+        }
+
+        /* Form Container */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #ff6b6b;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-help {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Icon Picker */
+        .icon-picker {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 15px;
+        }
+
+        .icon-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.8em;
+            background: white;
+        }
+
+        .icon-option:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+            transform: scale(1.1);
+        }
+
+        .icon-option.selected {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Color Picker */
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .color-option:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.15);
+        }
+
+        /* Age Range Selector */
+        .age-range-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .age-range-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .age-range-option:hover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .age-range-option.selected {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-color: transparent;
+        }
+
+        .age-icon {
+            font-size: 1.5em;
+        }
+
+        /* Preview Section */
+        .category-preview-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .preview-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .live-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            display: inline-block;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .preview-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .preview-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .preview-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .preview-meta {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .page-title {
+                font-size: 2em;
+            }
+
+            .form-container {
+                padding: 25px;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .icon-picker {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            }
+
+            .color-picker {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            }
+
+            .age-range-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="/adminDashboard.html" class="admin-logo">ImiGames Admin</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/adminDashboard.html">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a></li>
+                <li><a href="/game-management.html">
+                    <span class="nav-icon">🎮</span>
+                    Games Management
+                </a></li>
+                <li><a href="/dashboardAddGame.html">
+                    <span class="nav-icon">➕</span>
+                    Add New Game
+                </a></li>
+                <li><a href="/categoriesAdmin.html">
+                    <span class="nav-icon">📂</span>
+                    Categories
+                </a></li>
+                <li><a href="/add-category.html" class="active">
+                    <span class="nav-icon">🏷️</span>
+                    Add Category
+                </a></li>
+                <li><a href="/user-management.html">
+                    <span class="nav-icon">👥</span>
+                    Users Management
+                </a></li>
+                <li><a href="/statistics.html">
+                    <span class="nav-icon">📈</span>
+                    Statistics
+                </a></li>
+                <li><a href="/admin/settings">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </a></li>
+                <li><a href="/admin/reports">
+                    <span class="nav-icon">📋</span>
+                    Reports
+                </a></li>
+                <li><a href="/logout" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span>🏷️</span>
+                    Add New Category
+                </h1>
+                <p class="page-subtitle">Create a new game category to organize and classify games</p>
+            </div>
+
+            <!-- Existing Categories -->
+            <div class="existing-categories">
+                <h2>
+                    <span>📂</span>
+                    Current Categories
+                </h2>
+                
+                <div class="categories-grid">
+                    <div class="category-preview">
+                        <span class="category-icon-large">📚</span>
+                        <div class="category-name">Educational</div>
+                        <div class="category-count">45 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-preview">
+                        <span class="category-icon-large">🧩</span>
+                        <div class="category-name">Puzzle</div>
+                        <div class="category-count">32 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-preview">
+                        <span class="category-icon-large">🗺️</span>
+                        <div class="category-name">Adventure</div>
+                        <div class="category-count">28 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-preview">
+                        <span class="category-icon-large">🎨</span>
+                        <div class="category-name">Creative</div>
+                        <div class="category-count">24 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-preview">
+                        <span class="category-icon-large">⚽</span>
+                        <div class="category-name">Sports</div>
+                        <div class="category-count">19 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="category-preview">
+                        <span class="category-icon-large">🏎️</span>
+                        <div class="category-name">Racing</div>
+                        <div class="category-count">16 games</div>
+                        <div class="category-actions">
+                            <button class="action-btn edit">✏️ Edit</button>
+                            <button class="action-btn delete">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div class="form-container">
+                <form id="addCategoryForm">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>📝</span>
+                            Basic Information
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="categoryName" class="form-label required">Category Name</label>
+                                <input type="text" id="categoryName" name="categoryName" class="form-input" 
+                                       placeholder="e.g., Science & Discovery" required>
+                                <div class="form-help">Choose a clear and descriptive name</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="categorySlug" class="form-label required">URL Slug</label>
+                                <input type="text" id="categorySlug" name="categorySlug" class="form-input" 
+                                       placeholder="science-discovery" required readonly>
+                                <div class="form-help">Auto-generated from category name</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="categoryDescription" class="form-label required">Description</label>
+                            <textarea id="categoryDescription" name="categoryDescription" class="form-textarea" 
+                                     placeholder="Describe what types of games belong in this category..." required></textarea>
+                            <div class="form-help">Help users understand what games they'll find in this category</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Design -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>🎨</span>
+                            Visual Design
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Category Icon</label>
+                            <div class="form-help">Select an emoji icon that represents this category</div>
+                            <div class="icon-picker" id="iconPicker">
+                                <div class="icon-option" data-icon="🔬" onclick="selectIcon('🔬')">🔬</div>
+                                <div class="icon-option" data-icon="🎭" onclick="selectIcon('🎭')">🎭</div>
+                                <div class="icon-option" data-icon="🎪" onclick="selectIcon('🎪')">🎪</div>
+                                <div class="icon-option" data-icon="🎯" onclick="selectIcon('🎯')">🎯</div>
+                                <div class="icon-option" data-icon="🎲" onclick="selectIcon('🎲')">🎲</div>
+                                <div class="icon-option" data-icon="🎨" onclick="selectIcon('🎨')">🎨</div>
+                                <div class="icon-option" data-icon="🎵" onclick="selectIcon('🎵')">🎵</div>
+                                <div class="icon-option" data-icon="📚" onclick="selectIcon('📚')">📚</div>
+                                <div class="icon-option" data-icon="🧩" onclick="selectIcon('🧩')">🧩</div>
+                                <div class="icon-option" data-icon="🗺️" onclick="selectIcon('🗺️')">🗺️</div>
+                                <div class="icon-option" data-icon="⚽" onclick="selectIcon('⚽')">⚽</div>
+                                <div class="icon-option" data-icon="🏎️" onclick="selectIcon('🏎️')">🏎️</div>
+                                <div class="icon-option" data-icon="🌟" onclick="selectIcon('🌟')">🌟</div>
+                                <div class="icon-option" data-icon="🚀" onclick="selectIcon('🚀')">🚀</div>
+                                <div class="icon-option" data-icon="🎈" onclick="selectIcon('🎈')">🎈</div>
+                                <div class="icon-option" data-icon="🎉" onclick="selectIcon('🎉')">🎉</div>
+                            </div>
+                            <input type="hidden" id="categoryIcon" name="categoryIcon" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Category Color Theme</label>
+                            <div class="form-help">Choose colors that will be used for this category</div>
+                            <div class="color-picker">
+                                <div class="color-option" style="background: linear-gradient(45deg, #ff6b6b, #ff8e8e)" data-color="red" onclick="selectColor('red')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #4ecdc4, #7dd3c8)" data-color="teal" onclick="selectColor('teal')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #45b7d1, #74c9dd)" data-color="blue" onclick="selectColor('blue')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #96ceb4, #abd7c5)" data-color="green" onclick="selectColor('green')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #feca57, #fed866)" data-color="yellow" onclick="selectColor('yellow')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #ff9ff3, #f368e0)" data-color="pink" onclick="selectColor('pink')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #a55eea, #cd84f1)" data-color="purple" onclick="selectColor('purple')"></div>
+                                <div class="color-option" style="background: linear-gradient(45deg, #fd79a8, #fdcb6e)" data-color="orange" onclick="selectColor('orange')"></div>
+                            </div>
+                            <input type="hidden" id="categoryColor" name="categoryColor">
+                        </div>
+                    </div>
+
+                    <!-- Target Audience -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>👶</span>
+                            Target Audience
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Primary Age Groups</label>
+                            <div class="form-help">Select the age groups this category is most suitable for</div>
+                            <div class="age-range-grid">
+                                <div class="age-range-option" data-age="2-4" onclick="toggleAgeRange('2-4')">
+                                    <span class="age-icon">👶</span>
+                                    <div>
+                                        <div style="font-weight: bold;">Toddlers</div>
+                                        <div style="font-size: 0.85em; color: #666;">2-4 years</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="age-range-option" data-age="4-6" onclick="toggleAgeRange('4-6')">
+                                    <span class="age-icon">🧒</span>
+                                    <div>
+                                        <div style="font-weight: bold;">Preschoolers</div>
+                                        <div style="font-size: 0.85em; color: #666;">4-6 years</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="age-range-option" data-age="6-10" onclick="toggleAgeRange('6-10')">
+                                    <span class="age-icon">👦</span>
+                                    <div>
+                                        <div style="font-weight: bold;">School Kids</div>
+                                        <div style="font-size: 0.85em; color: #666;">6-10 years</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="age-range-option" data-age="10-13" onclick="toggleAgeRange('10-13')">
+                                    <span class="age-icon">👧</span>
+                                    <div>
+                                        <div style="font-weight: bold;">Tweens</div>
+                                        <div style="font-size: 0.85em; color: #666;">10-13 years</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="categoryAgeRanges" name="categoryAgeRanges" required>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="difficultyRange" class="form-label">Difficulty Range</label>
+                                <select id="difficultyRange" name="difficultyRange" class="form-select">
+                                    <option value="">Select difficulty range</option>
+                                    <option value="easy">Easy only</option>
+                                    <option value="easy-medium">Easy to Medium</option>
+                                    <option value="medium">Medium only</option>
+                                    <option value="medium-hard">Medium to Hard</option>
+                                    <option value="all">All difficulties</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="educationalValue" class="form-label">Educational Value</label>
+                                <select id="educationalValue" name="educationalValue" class="form-select">
+                                    <option value="high">High - Primary focus on learning</option>
+                                    <option value="medium">Medium - Learning through play</option>
+                                    <option value="low">Low - Entertainment focused</option>
+                                    <option value="none">None - Pure entertainment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Settings -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <span>⚙️</span>
+                            Category Settings
+                        </h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sortOrder" class="form-label">Display Order</label>
+                                <input type="number" id="sortOrder" name="sortOrder" class="form-input" 
+                                       placeholder="1" min="1" max="100" value="7">
+                                <div class="form-help">Lower numbers appear first in category lists</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="categoryStatus" class="form-label">Status</label>
+                                <select id="categoryStatus" name="categoryStatus" class="form-select">
+                                    <option value="active">🟢 Active</option>
+                                    <option value="draft">🟡 Draft</option>
+                                    <option value="inactive">🔴 Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoryKeywords" class="form-label">SEO Keywords</label>
+                            <input type="text" id="categoryKeywords" name="categoryKeywords" class="form-input" 
+                                   placeholder="science games, educational, discovery, experiments">
+                            <div class="form-help">Keywords for search engine optimization (comma separated)</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="parentalGuidance" class="form-label">Parental Guidance Notes</label>
+                            <textarea id="parentalGuidance" name="parentalGuidance" class="form-textarea" 
+                                     placeholder="Any special notes for parents about games in this category..."></textarea>
+                            <div class="form-help">Optional guidance for parents and educators</div>
+                        </div>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div class="category-preview-section">
+                        <h3 class="preview-title">Live Preview</h3>
+                        <div class="live-preview" id="livePreview">
+                            <span class="preview-icon" id="previewIcon">❓</span>
+                            <div class="preview-name" id="previewName">Category Name</div>
+                            <div class="preview-description" id="previewDescription">Category description will appear here...</div>
+                            <div class="preview-meta">
+                                <span>0 games</span>
+                                <span>⭐ New</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div class="success-message" id="successMessage">
+                        <h3>🎉 Category Created Successfully!</h3>
+                        <p>Your new category has been created and is ready to use. Games can now be assigned to this category.</p>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                            💾 Save as Draft
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            🚀 Create Category
+                        </button>
+                        <a href="/admin/categories" class="btn btn-secondary">
+                            ❌ Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let selectedIcon = null;
+        let selectedColor = null;
+        let selectedAgeRanges = [];
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Auto-generate slug from category name
+        document.getElementById('categoryName').addEventListener('input', function(e) {
+            const slug = e.target.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+            document.getElementById('categorySlug').value = slug;
+            updatePreview();
+        });
+
+        // Update description preview
+        document.getElementById('categoryDescription').addEventListener('input', updatePreview);
+
+        // Select icon
+        function selectIcon(icon) {
+            // Remove previous selection
+            document.querySelectorAll('.icon-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelector(`[data-icon="${icon}"]`).classList.add('selected');
+            
+            // Update hidden input and preview
+            document.getElementById('categoryIcon').value = icon;
+            selectedIcon = icon;
+            updatePreview();
+        }
+
+        // Select color
+        function selectColor(color) {
+            // Remove previous selection
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelector(`[data-color="${color}"]`).classList.add('selected');
+            
+            // Update hidden input and preview
+            document.getElementById('categoryColor').value = color;
+            selectedColor = color;
+            updatePreview();
+        }
+
+        // Toggle age range selection
+        function toggleAgeRange(ageRange) {
+            const option = document.querySelector(`[data-age="${ageRange}"]`);
+            
+            if (selectedAgeRanges.includes(ageRange)) {
+                // Remove from selection
+                selectedAgeRanges = selectedAgeRanges.filter(range => range !== ageRange);
+                option.classList.remove('selected');
+            } else {
+                // Add to selection
+                selectedAgeRanges.push(ageRange);
+                option.classList.add('selected');
+            }
+            
+            // Update hidden input
+            document.getElementById('categoryAgeRanges').value = selectedAgeRanges.join(',');
+            updatePreview();
+        }
+
+        // Update live preview
+        function updatePreview() {
+            const name = document.getElementById('categoryName').value || 'Category Name';
+            const description = document.getElementById('categoryDescription').value || 'Category description will appear here...';
+            const icon = selectedIcon || '❓';
+            
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewDescription').textContent = description;
+            document.getElementById('previewIcon').textContent = icon;
+            
+            // Apply color theme to preview
+            const preview = document.getElementById('livePreview');
+            if (selectedColor) {
+                const colorThemes = {
+                    red: 'linear-gradient(45deg, #ff6b6b, #ff8e8e)',
+                    teal: 'linear-gradient(45deg, #4ecdc4, #7dd3c8)',
+                    blue: 'linear-gradient(45deg, #45b7d1, #74c9dd)',
+                    green: 'linear-gradient(45deg, #96ceb4, #abd7c5)',
+                    yellow: 'linear-gradient(45deg, #feca57, #fed866)',
+                    pink: 'linear-gradient(45deg, #ff9ff3, #f368e0)',
+                    purple: 'linear-gradient(45deg, #a55eea, #cd84f1)',
+                    orange: 'linear-gradient(45deg, #fd79a8, #fdcb6e)'
+                };
+                
+                if (colorThemes[selectedColor]) {
+                    preview.style.background = colorThemes[selectedColor];
+                    preview.style.color = 'white';
+                } else {
+                    preview.style.background = 'white';
+                    preview.style.color = '#333';
+                }
+            }
+        }
+
+        // Save as draft
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('addCategoryForm'));
+            formData.append('status', 'draft');
+            
+            showNotification('Category saved as draft successfully!', 'success');
+            
+            // In real implementation, send to server
+            console.log('Saving draft:', Object.fromEntries(formData.entries()));
+        }
+
+        // Form submission
+        document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const formData = new FormData(this);
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+            
+            // In real implementation, send to server
+            console.log('Creating category:', Object.fromEntries(formData.entries()));
+            
+            // Reset form after delay
+            setTimeout(() => {
+                if (confirm('Category created successfully! Would you like to add another category?')) {
+                    this.reset();
+                    selectedIcon = null;
+                    selectedColor = null;
+                    selectedAgeRanges = [];
+                    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                    document.getElementById('successMessage').style.display = 'none';
+                    updatePreview();
+                } else {
+                    window.location.href = '/admin/categories';
+                }
+            }, 3000);
+        });
+
+        // Form validation
+        function validateForm() {
+            const requiredFields = [
+                'categoryName',
+                'categorySlug',
+                'categoryDescription'
+            ];
+            
+            let isValid = true;
+            
+            // Check required fields
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    showFieldError(field, 'This field is required');
+                    isValid = false;
+                } else {
+                    clearFieldError(field);
+                }
+            });
+            
+            // Check icon selection
+            if (!selectedIcon) {
+                showNotification('Please select a category icon', 'warning');
+                isValid = false;
+            }
+            
+            // Check age ranges selection
+            if (selectedAgeRanges.length === 0) {
+                showNotification('Please select at least one age group', 'warning');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Show field error
+        function showFieldError(field, message) {
+            field.style.borderColor = '#ff6b6b';
+            
+            // Remove existing error message
+            const existingError = field.parentNode.querySelector('.field-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            errorDiv.style.color = '#ff6b6b';
+            errorDiv.style.fontSize = '0.9em';
+            errorDiv.style.marginTop = '5px';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        // Clear field error
+        function clearFieldError(field) {
+            field.style.borderColor = '#ddd';
+            const errorDiv = field.parentNode.querySelector('.field-error');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '10000';
+            notification.style.maxWidth = '300px';
+            notification.style.padding = '15px 20px';
+            notification.style.borderRadius = '10px';
+            notification.style.fontWeight = '600';
+            
+            const typeColors = {
+                info: { bg: 'rgba(33, 150, 243, 0.1)', color: '#2196F3', border: '#2196F3' },
+                warning: { bg: 'rgba(255, 193, 7, 0.1)', color: '#FFC107', border: '#FFC107' },
+                success: { bg: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', border: '#4CAF50' },
+                error: { bg: 'rgba(244, 67, 54, 0.1)', color: '#F44336', border: '#F44336' }
+            };
+            
+            const colors = typeColors[type] || typeColors.info;
+            notification.style.background = colors.bg;
+            notification.style.color = colors.color;
+            notification.style.borderLeft = `4px solid ${colors.border}`;
+            
+            notification.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Delete category function
+        function deleteCategory(categoryName) {
+            if (confirm(`Are you sure you want to delete the "${categoryName}" category? This action cannot be undone.`)) {
+                showNotification(`Category "${categoryName}" has been deleted`, 'success');
+                // In real implementation, send delete request to server
+            }
+        }
+
+        // Edit category function
+        function editCategory(categoryName) {
+            showNotification(`Opening editor for "${categoryName}" category`, 'info');
+            // In real implementation, populate form with existing data
+        }
+
+        // Add event listeners to category action buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to existing category buttons
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryName = this.closest('.category-preview').querySelector('.category-name').textContent;
+                    deleteCategory(categoryName);
+                });
+            });
+            
+            document.querySelectorAll('.action-btn.edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const categoryName = this.closest('.category-preview').querySelector('.category-name').textContent;
+                    editCategory(categoryName);
+                });
+            });
+            
+            // Initialize preview
+            updatePreview();
+            
+            // Add input monitoring for real-time preview
+            document.querySelectorAll('input, textarea, select').forEach(input => {
+                input.addEventListener('input', updatePreview);
+                input.addEventListener('change', updatePreview);
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveDraft();
+                        break;
+                    case 'Enter':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            document.getElementById('addCategoryForm').dispatchEvent(new Event('submit'));
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

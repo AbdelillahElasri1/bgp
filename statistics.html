@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Dashboard - Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .admin-logo::before {
+            content: "🎮";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .admin-logo::after {
+            content: "⚙️";
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 10px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-nav a:hover, .admin-nav a.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .admin-nav a:hover::before {
+            transform: translateX(100%);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 2.5em;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        /* Time Period Selector */
+        .time-selector {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .selector-title {
+            font-size: 1.5em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 12px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .time-btn:hover, .time-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Key Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .metric-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .metric-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .metric-change.positive {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .metric-change.negative {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        .metric-change.neutral {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9E9E9E;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.5em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-option-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .chart-option-btn:hover, .chart-option-btn.active {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .chart-area {
+            height: 300px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.1em;
+            border: 2px dashed #ddd;
+            position: relative;
+        }
+
+        /* Simulated Chart Styles */
+        .line-chart {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 20%;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+            animation: drawLine 2s ease-in-out;
+        }
+
+        @keyframes drawLine {
+            from { width: 0%; }
+            to { width: 80%; }
+        }
+
+        .chart-dots {
+            position: absolute;
+            bottom: 20%;
+            left: 10%;
+            width: 80%;
+            height: 100px;
+        }
+
+        .chart-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        /* Pie Chart Simulation */
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 120deg,
+                #4ecdc4 120deg 200deg,
+                #45b7d1 200deg 280deg,
+                #96ceb4 280deg 360deg
+            );
+            margin: 20px auto;
+            animation: spinIn 1.5s ease-out;
+        }
+
+        @keyframes spinIn {
+            from { transform: rotate(0deg) scale(0); }
+            to { transform: rotate(360deg) scale(1); }
+        }
+
+        /* Popular Games Table */
+        .popular-games {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .popular-games h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .games-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .games-table th,
+        .games-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .games-table th {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: bold;
+        }
+
+        .games-table tr:hover {
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .game-rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .game-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .game-details {
+            flex: 1;
+        }
+
+        .game-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .game-category {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .trend-indicator {
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+
+        .trend-up { color: #4CAF50; }
+        .trend-down { color: #F44336; }
+        .trend-stable { color: #9E9E9E; }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-feed h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 107, 107, 0.05);
+            border-radius: 10px;
+            padding-left: 15px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* User Demographics */
+        .demographics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .demo-card h3 {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .demo-bar {
+            margin-bottom: 15px;
+        }
+
+        .demo-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .demo-label-name {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .demo-label-value {
+            color: #666;
+        }
+
+        .demo-progress {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .demo-progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border-radius: 4px;
+            transition: width 1s ease;
+            animation: fillProgress 2s ease-out;
+        }
+
+        @keyframes fillProgress {
+            from { width: 0%; }
+        }
+
+        /* Export Section */
+        .export-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .export-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .export-card {
+            background: linear-gradient(135deg, #45b7d1, #96ceb4);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .export-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .export-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .export-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .export-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .export-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .export-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .demographics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .page-title {
+                font-size: 2em;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+
+            .time-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .selector-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .export-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Real-time Indicator */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="/adminDashboard.html" class="admin-logo">ImiGames Admin</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/adminDashboard.html">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a></li>
+                <li><a href="/game-management.html">
+                    <span class="nav-icon">🎮</span>
+                    Games Management
+                </a></li>
+                <li><a href="/dashboardAddGame.html">
+                    <span class="nav-icon">➕</span>
+                    Add New Game
+                </a></li>
+                <li><a href="/categoriesAdmin.html">
+                    <span class="nav-icon">📂</span>
+                    Categories
+                </a></li>
+                <li><a href="/add-category.html">
+                    <span class="nav-icon">🏷️</span>
+                    Add Category
+                </a></li>
+                <li><a href="/user-management.html">
+                    <span class="nav-icon">👥</span>
+                    Users Management
+                </a></li>
+                <li><a href="/statistics.html" class="active">
+                    <span class="nav-icon">📈</span>
+                    Statistics
+                </a></li>
+                <li><a href="/admin/settings">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </a></li>
+                <li><a href="/admin/reports">
+                    <span class="nav-icon">📋</span>
+                    Reports
+                </a></li>
+                <li><a href="/logout" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span>📈</span>
+                    Statistics Dashboard
+                </h1>
+                <p class="page-subtitle">Comprehensive analytics and insights for ImiGames platform performance</p>
+                <div style="margin-top: 15px;">
+                    <span class="live-indicator">
+                        <span class="live-dot"></span>
+                        Live Data
+                    </span>
+                </div>
+            </div>
+
+            <!-- Time Period Selector -->
+            <div class="time-selector">
+                <div class="selector-header">
+                    <h2 class="selector-title">
+                        <span>📅</span>
+                        Time Period
+                    </h2>
+                    <button class="refresh-btn" onclick="refreshData()">
+                        <span>🔄</span>
+                        Refresh Data
+                    </button>
+                </div>
+                
+                <div class="time-buttons">
+                    <button class="time-btn" onclick="selectTimePeriod('today')">Today</button>
+                    <button class="time-btn" onclick="selectTimePeriod('week')">This Week</button>
+                    <button class="time-btn active" onclick="selectTimePeriod('month')">This Month</button>
+                    <button class="time-btn" onclick="selectTimePeriod('quarter')">This Quarter</button>
+                    <button class="time-btn" onclick="selectTimePeriod('year')">This Year</button>
+                    <button class="time-btn" onclick="selectTimePeriod('all')">All Time</button>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-icon">👥</span>
+                    <div class="metric-value" id="totalUsers">25,847</div>
+                    <div class="metric-label">Total Users</div>
+                    <div class="metric-change positive">+8.3% from last month</div>
+                </div>
+                
+                <div class="metric-card">
+                    <span class="metric-icon">🎮</span>
+                    <div class="metric-value" id="totalPlays">1.2M</div>
+                    <div class="metric-label">Game Plays</div>
+                    <div class="metric-change positive">+15.7% from last month</div>
+                </div>
+                
+                <div class="metric-card">
+                    <span class="metric-icon">⏱️</span>
+                    <div class="metric-value" id="avgSession">8m 32s</div>
+                    <div class="metric-label">Avg Session</div>
+                    <div class="metric-change positive">+12.5% from last month</div>
+                </div>
+                
+                <div class="metric-card">
+                    <span class="metric-icon">⭐</span>
+                    <div class="metric-value" id="avgRating">4.7</div>
+                    <div class="metric-label">Avg Rating</div>
+                    <div class="metric-change positive">+0.2 from last month</div>
+                </div>
+                
+                <div class="metric-card">
+                    <span class="metric-icon">📱</span>
+                    <div class="metric-value" id="dailyActive">3,421</div>
+                    <div class="metric-label">Daily Active Users</div>
+                    <div class="metric-change positive">+18.9% from yesterday</div>
+                </div>
+                
+                <div class="metric-card">
+                    <span class="metric-icon">💰</span>
+                    <div class="metric-value" id="revenue">$12,543</div>
+                    <div class="metric-label">Monthly Revenue</div>
+                    <div class="metric-change positive">+22.4% from last month</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <span>📊</span>
+                            User Activity Trends
+                        </h3>
+                        <div class="chart-options">
+                            <button class="chart-option-btn active">Daily</button>
+                            <button class="chart-option-btn">Weekly</button>
+                            <button class="chart-option-btn">Monthly</button>
+                        </div>
+                    </div>
+                    <div class="chart-area">
+                        <div class="line-chart">
+                            <div class="chart-line"></div>
+                            <div class="chart-dots">
+                                <div class="chart-dot" style="left: 10%; bottom: 20px; animation-delay: 0.2s;"></div>
+                                <div class="chart-dot" style="left: 25%; bottom: 40px; animation-delay: 0.4s;"></div>
+                                <div class="chart-dot" style="left: 40%; bottom: 35px; animation-delay: 0.6s;"></div>
+                                <div class="chart-dot" style="left: 55%; bottom: 60px; animation-delay: 0.8s;"></div>
+                                <div class="chart-dot" style="left: 70%; bottom: 45px; animation-delay: 1.0s;"></div>
+                                <div class="chart-dot" style="left: 85%; bottom: 70px; animation-delay: 1.2s;"></div>
+                            </div>
+                        </div>
+                        <div style="position: absolute; bottom: 10px; left: 10px; font-size: 0.8em; color: #999;">
+                            Interactive chart powered by Chart.js (in real implementation)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <span>🥧</span>
+                            Games by Category
+                        </h3>
+                    </div>
+                    <div class="chart-area">
+                        <div class="pie-chart"></div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 0.9em;">
+                                <span style="color: #ff6b6b;">📚 Educational (35%)</span>
+                                <span style="color: #4ecdc4;">🧩 Puzzle (28%)</span>
+                                <span style="color: #45b7d1;">🎨 Creative (22%)</span>
+                                <span style="color: #96ceb4;">⚽ Sports (15%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Games -->
+            <div class="popular-games">
+                <h2>
+                    <span>🏆</span>
+                    Most Popular Games
+                </h2>
+                
+                <table class="games-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Game</th>
+                            <th>Plays</th>
+                            <th>Rating</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="game-rank">1</div>
+                            </td>
+                            <td>
+                                <div class="game-info">
+                                    <div class="game-details">
+                                        <div class="game-name">Math Adventure Quest</div>
+                                        <div class="game-category">Educational</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>156,234</td>
+                            <td>⭐ 4.9</td>
+                            <td>
+                                <span class="trend-indicator trend-up">📈</span>
+                                +23%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="game-rank">2</div>
+                            </td>
+                            <td>
+                                <div class="game-info">
+                                    <div class="game-details">
+                                        <div class="game-name">Space Explorer</div>
+                                        <div class="game-category">Adventure</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>134,567</td>
+                            <td>⭐ 4.8</td>
+                            <td>
+                                <span class="trend-indicator trend-up">📈</span>
+                                +18%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="game-rank">3</div>
+                            </td>
+                            <td>
+                                <div class="game-info">
+                                    <div class="game-details">
+                                        <div class="game-name">Creative Art Studio</div>
+                                        <div class="game-category">Creative</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>98,432</td>
+                            <td>⭐ 4.7</td>
+                            <td>
+                                <span class="trend-indicator trend-stable">📊</span>
+                                +2%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="game-rank">4</div>
+                            </td>
+                            <td>
+                                <div class="game-info">
+                                    <div class="game-details">
+                                        <div class="game-name">Puzzle Master</div>
+                                        <div class="game-category">Puzzle</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>87,921</td>
+                            <td>⭐ 4.6</td>
+                            <td>
+                                <span class="trend-indicator trend-down">📉</span>
+                                -5%
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="game-rank">5</div>
+                            </td>
+                            <td>
+                                <div class="game-info">
+                                    <div class="game-details">
+                                        <div class="game-name">Soccer Champion</div>
+                                        <div class="game-category">Sports</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>76,543</td>
+                            <td>⭐ 4.5</td>
+                            <td>
+                                <span class="trend-indicator trend-up">📈</span>
+                                +12%
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- User Demographics -->
+            <div class="demographics-grid">
+                <div class="demo-card">
+                    <h3>
+                        <span>👶</span>
+                        Age Distribution
+                    </h3>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Ages 4-6 (Preschoolers)</span>
+                            <span class="demo-label-value">35%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 35%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Ages 6-10 (School Kids)</span>
+                            <span class="demo-label-value">28%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 28%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Ages 10-13 (Tweens)</span>
+                            <span class="demo-label-value">22%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 22%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Ages 2-4 (Toddlers)</span>
+                            <span class="demo-label-value">15%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 15%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3>
+                        <span>🌍</span>
+                        Geographic Distribution
+                    </h3>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">North America</span>
+                            <span class="demo-label-value">42%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 42%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Europe</span>
+                            <span class="demo-label-value">31%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 31%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Asia Pacific</span>
+                            <span class="demo-label-value">18%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 18%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-bar">
+                        <div class="demo-label">
+                            <span class="demo-label-name">Other Regions</span>
+                            <span class="demo-label-value">9%</span>
+                        </div>
+                        <div class="demo-progress">
+                            <div class="demo-progress-fill" style="width: 9%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-feed">
+                <h2>
+                    <span>📝</span>
+                    Recent Activity
+                </h2>
+                
+                <div class="activity-item">
+                    <span class="activity-icon">🎮</span>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Peak usage recorded:</strong> 4,523 concurrent users at 3:30 PM</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <span class="activity-icon">⭐</span>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>New milestone:</strong> "Math Adventure Quest" reached 150K plays</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <span class="activity-icon">👥</span>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>User growth:</strong> 47 new registrations in the last hour</div>
+                        <div class="activity-time">32 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <span class="activity-icon">🏆</span>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Achievement unlocked:</strong> Platform reached 25,000 total users</div>
+                        <div class="activity-time">1 hour ago</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <span class="activity-icon">📊</span>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Performance boost:</strong> Average load time improved by 23%</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="export-section">
+                <h2 class="export-title">
+                    <span>📤</span>
+                    Export Analytics
+                </h2>
+                
+                <div class="export-options">
+                    <div class="export-card" onclick="exportData('detailed-report')">
+                        <span class="export-icon">📋</span>
+                        <div class="export-name">Detailed Report</div>
+                        <div class="export-desc">Complete analytics with charts and insights</div>
+                    </div>
+                    
+                    <div class="export-card" onclick="exportData('user-data')">
+                        <span class="export-icon">👥</span>
+                        <div class="export-name">User Analytics</div>
+                        <div class="export-desc">User behavior and demographic data</div>
+                    </div>
+                    
+                    <div class="export-card" onclick="exportData('game-performance')">
+                        <span class="export-icon">🎮</span>
+                        <div class="export-name">Game Performance</div>
+                        <div class="export-desc">Individual game statistics and trends</div>
+                    </div>
+                    
+                    <div class="export-card" onclick="exportData('revenue-report')">
+                        <span class="export-icon">💰</span>
+                        <div class="export-name">Revenue Report</div>
+                        <div class="export-desc">Financial performance and projections</div>
+                    </div>
+                    
+                    <div class="export-card" onclick="exportData('custom-dashboard')">
+                        <span class="export-icon">⚙️</span>
+                        <div class="export-name">Custom Dashboard</div>
+                        <div class="export-desc">Build your own analytics dashboard</div>
+                    </div>
+                    
+                    <div class="export-card" onclick="exportData('api-access')">
+                        <span class="export-icon">🔌</span>
+                        <div class="export-name">API Access</div>
+                        <div class="export-desc">Real-time data via REST API</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentTimePeriod = 'month';
+        let refreshInterval;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            animateMetrics();
+            startRealTimeUpdates();
+        });
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Select time period
+        function selectTimePeriod(period) {
+            currentTimePeriod = period;
+            
+            // Update active button
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Simulate data refresh
+            showNotification(`Updating data for: ${period}`, 'info');
+            updateDashboardData(period);
+        }
+
+        // Update dashboard data based on time period
+        function updateDashboardData(period) {
+            // Simulate different data for different periods
+            const dataVariations = {
+                today: {
+                    totalUsers: '1,247',
+                    totalPlays: '15.6K',
+                    avgSession: '6m 45s',
+                    avgRating: '4.8',
+                    dailyActive: '1,247',
+                    revenue: '$423'
+                },
+                week: {
+                    totalUsers: '8,634',
+                    totalPlays: '89.2K',
+                    avgSession: '7m 15s',
+                    avgRating: '4.7',
+                    dailyActive: '2,845',
+                    revenue: '$2,156'
+                },
+                month: {
+                    totalUsers: '25,847',
+                    totalPlays: '1.2M',
+                    avgSession: '8m 32s',
+                    avgRating: '4.7',
+                    dailyActive: '3,421',
+                    revenue: '$12,543'
+                },
+                quarter: {
+                    totalUsers: '76,234',
+                    totalPlays: '3.8M',
+                    avgSession: '9m 12s',
+                    avgRating: '4.6',
+                    dailyActive: '4,156',
+                    revenue: '$34,892'
+                },
+                year: {
+                    totalUsers: '234,567',
+                    totalPlays: '15.2M',
+                    avgSession: '8m 45s',
+                    avgRating: '4.6',
+                    dailyActive: '5,234',
+                    revenue: '$156,789'
+                },
+                all: {
+                    totalUsers: '456,789',
+                    totalPlays: '28.5M',
+                    avgSession: '8m 23s',
+                    avgRating: '4.5',
+                    dailyActive: '6,123',
+                    revenue: '$287,456'
+                }
+            };
+
+            const data = dataVariations[period] || dataVariations.month;
+            
+            // Update metric values with animation
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    animateValue(element, element.textContent, data[key], 1000);
+                }
+            });
+        }
+
+        // Animate value changes
+        function animateValue(element, start, end, duration) {
+            const startValue = parseFloat(start.replace(/[^\d.-]/g, '')) || 0;
+            const endValue = parseFloat(end.replace(/[^\d.-]/g, '')) || 0;
+            const startTime = performance.now();
+            
+            requestAnimationFrame(update);
+        }
+        function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const current = startValue + (endValue - startValue) * progress;
+                
+                // Format the number based on the original format
+                if (end.includes('K')) {
+                    element.textContent = (current / 1000).toFixed(1) + 'K';
+                } else if (end.includes('M')) {
+                    element.textContent = (current / 1000000).toFixed(1) + 'M';
+                } else if (end.includes('s')) {
+                    element.textContent = ''+ Math.floor(current).toLocaleString();
+                } else if (end.includes('m')) {
+                    const minutes = Math.floor(current);
+                    const seconds = Math.floor((current - minutes) * 60);
+                    element.textContent = `${minutes}m ${seconds}s`;
+                } else if (end.includes('.')) {
+                    element.textContent = current.toFixed(1);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = end;
+                }
+            }
+
+        // Animate metrics on page load
+        function animateMetrics() {
+            const metrics = document.querySelectorAll('.metric-value');
+            
+            metrics.forEach((metric, index) => {
+                const finalValue = metric.textContent;
+                metric.textContent = '0';
+                
+                setTimeout(() => {
+                    animateValue(metric, '0', finalValue, 1500);
+                }, index * 200);
+            });
+        }
+
+        // Refresh data
+        function refreshData() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            const originalContent = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<span class="loading-spinner"></span> Refreshing...';
+            refreshBtn.disabled = true;
+            
+            setTimeout(() => {
+                refreshBtn.innerHTML = originalContent;
+                refreshBtn.disabled = false;
+                showNotification('Data refreshed successfully', 'success');
+                updateDashboardData(currentTimePeriod);
+            }, 2000);
+        }
+
+        // Export data
+        function exportData(type) {
+            const exportNames = {
+                'detailed-report': 'Detailed Analytics Report',
+                'user-data': 'User Analytics Data',
+                'game-performance': 'Game Performance Report',
+                'revenue-report': 'Revenue Analysis Report',
+                'custom-dashboard': 'Custom Dashboard Builder',
+                'api-access': 'API Documentation'
+            };
+            
+            showNotification(`Preparing ${exportNames[type]}...`, 'info');
+            
+            setTimeout(() => {
+                if (type === 'api-access') {
+                    showNotification('Opening API documentation', 'info');
+                    // In real implementation, open API docs
+                } else if (type === 'custom-dashboard') {
+                    showNotification('Opening dashboard builder', 'info');
+                    // In real implementation, open dashboard builder
+                } else {
+                    showNotification(`${exportNames[type]} downloaded successfully`, 'success');
+                    
+                    // Simulate file download
+                    const blob = new Blob([`${exportNames[type]} - Generated on ${new Date().toLocaleString()}`], 
+                                         { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${type}_${new Date().toISOString().split('T')[0]}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }, 1500);
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            refreshInterval = setInterval(() => {
+                // Simulate real-time data updates
+                updateRealTimeMetrics();
+            }, 30000); // Update every 30 seconds
+        }
+
+        // Update real-time metrics
+        function updateRealTimeMetrics() {
+            const dailyActiveElement = document.getElementById('dailyActive');
+            const currentValue = parseInt(dailyActiveElement.textContent.replace(/,/g, ''));
+            const change = Math.floor(Math.random() * 20) - 10; // Random change between -10 and +10
+            const newValue = Math.max(0, currentValue + change);
+            
+            animateValue(dailyActiveElement, currentValue.toString(), newValue.toLocaleString(), 500);
+            
+            // Add activity to feed
+            if (Math.random() < 0.3) { // 30% chance to add new activity
+                addRealtimeActivity();
+            }
+        }
+
+        // Add real-time activity
+        function addRealtimeActivity() {
+            const activities = [
+                { icon: '🎮', text: 'New game session started by user from Canada', time: 'Just now' },
+                { icon: '⭐', text: '"Space Explorer" received a 5-star rating', time: 'Just now' },
+                { icon: '👥', text: 'New parent account registered', time: 'Just now' },
+                { icon: '🏆', text: 'User completed "Math Adventure Quest"', time: 'Just now' },
+                { icon: '📱', text: 'Mobile app usage spike detected', time: 'Just now' }
+            ];
+            
+            const activity = activities[Math.floor(Math.random() * activities.length)];
+            const activityFeed = document.querySelector('.activity-feed');
+            const firstActivity = activityFeed.querySelector('.activity-item');
+            
+            const newActivity = document.createElement('div');
+            newActivity.className = 'activity-item';
+            newActivity.style.background = 'rgba(76, 175, 80, 0.1)';
+            newActivity.innerHTML = `
+                <span class="activity-icon">${activity.icon}</span>
+                <div class="activity-content">
+                    <div class="activity-text"><strong>Real-time:</strong> ${activity.text}</div>
+                    <div class="activity-time">${activity.time}</div>
+                </div>
+            `;
+            
+            activityFeed.insertBefore(newActivity, firstActivity);
+            
+            // Remove background after 5 seconds
+            setTimeout(() => {
+                newActivity.style.background = '';
+            }, 5000);
+            
+            // Remove oldest activity if more than 8 activities
+            const activities_count = activityFeed.querySelectorAll('.activity-item').length;
+            if (activities_count > 8) {
+                const lastActivity = activityFeed.querySelector('.activity-item:last-child');
+                lastActivity.remove();
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '10001';
+            notification.style.maxWidth = '350px';
+            notification.style.padding = '15px 20px';
+            notification.style.borderRadius = '15px';
+            notification.style.fontWeight = '600';
+            notification.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.2)';
+            notification.style.backdropFilter = 'blur(10px)';
+
+            const typeColors = {
+                info: { bg: 'rgba(33, 150, 243, 0.9)', color: 'white' },
+                warning: { bg: 'rgba(255, 193, 7, 0.9)', color: 'white' },
+                success: { bg: 'rgba(76, 175, 80, 0.9)', color: 'white' },
+                error: { bg: 'rgba(244, 67, 54, 0.9)', color: 'white' }
+            };
+
+            const colors = typeColors[type] || typeColors.info;
+            notification.style.background = colors.bg;
+            notification.style.color = colors.color;
+
+            const icons = {
+                info: 'ℹ️',
+                success: '✅', 
+                warning: '⚠️',
+                error: '❌'
+            };
+
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">${icons[type] || icons.info}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            notification.style.transform = 'translateX(100%)';
+            notification.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 10);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Chart option buttons
+        document.querySelectorAll('.chart-option-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from siblings
+                this.parentNode.querySelectorAll('.chart-option-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                showNotification(`Updating chart view: ${this.textContent}`, 'info');
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        refreshData();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        exportData('detailed-report');
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        selectTimePeriod('today');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        selectTimePeriod('week');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        selectTimePeriod('month');
+                        break;
+                }
+            }
+        });
+
+        // Cleanup interval on page unload
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+
+        // Page visibility API for pause/resume updates
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Pause real-time updates when page is not visible
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                }
+            } else {
+                // Resume real-time updates when page becomes visible
+                startRealTimeUpdates();
+                showNotification('Real-time updates resumed', 'info');
+            }
+        });
+
+        // Add performance monitoring
+        window.addEventListener('load', function() {
+            const loadTime = performance.now();
+            console.log(`Statistics dashboard loaded in ${loadTime.toFixed(2)}ms`);
+            
+            if (loadTime > 3000) {
+                showNotification('Dashboard took longer than expected to load', 'warning');
+            }
+        });
+
+        // Simulate WebSocket connection for real-time data
+        function simulateWebSocketConnection() {
+            console.log('🔌 Establishing WebSocket connection for real-time data...');
+            
+            // In real implementation, this would be:
+            // const ws = new WebSocket('wss://api.imigames.io/stats');
+            // ws.onmessage = function(event) {
+            //     const data = JSON.parse(event.data);
+            //     updateRealTimeMetrics(data);
+            // };
+            
+            setTimeout(() => {
+                console.log('✅ WebSocket connection established');
+                showNotification('Real-time data connection established', 'success');
+            }, 2000);
+        }
+
+        // Initialize WebSocket simulation
+        simulateWebSocketConnection();
+    </script>
+</body>
+</html>
+                        

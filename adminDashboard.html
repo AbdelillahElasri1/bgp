@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ImiGames.io</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: backgroundShift 15s ease infinite;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .admin-logo::before {
+            content: "🎮";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .admin-logo::after {
+            content: "⚙️";
+            margin-left: 10px;
+            font-size: 0.8em;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 10px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #666;
+            text-decoration: none;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-nav a:hover, .admin-nav a.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .admin-nav a:hover::before {
+            transform: translateX(100%);
+        }
+
+        .nav-icon {
+            font-size: 1.3em;
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-title {
+            font-size: 2.5em;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .stat-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .stat-change {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .stat-change.positive {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .stat-change.negative {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-action {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .section-action:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 107, 107, 0.05);
+            border-radius: 10px;
+            padding-left: 15px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .quick-action-card {
+            background: linear-gradient(135deg, #45b7d1, #96ceb4);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .quick-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .quick-action-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .quick-action-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .quick-action-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .quick-action-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.1em;
+            border: 2px dashed #ddd;
+        }
+
+        /* Tables */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-table th {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: bold;
+        }
+
+        .admin-table tr:hover {
+            background: rgba(255, 107, 107, 0.05);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        /* Alert Messages */
+        .admin-alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .admin-alert.info {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            border-left: 4px solid #2196F3;
+        }
+
+        .admin-alert.warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #FFC107;
+            border-left: 4px solid #FFC107;
+        }
+
+        .admin-alert.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .dashboard-title {
+                font-size: 2em;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-table {
+                font-size: 0.9em;
+            }
+
+            .admin-table th,
+            .admin-table td {
+                padding: 10px;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <a href="/adminDashboard.html" class="admin-logo">ImiGames Admin</a>
+            
+            <ul class="admin-nav">
+                <li><a href="/adminDashboard.html" class="active">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a></li>
+                <li><a href="/game-management.html">
+                    <span class="nav-icon">🎮</span>
+                    Games Management
+                </a></li>
+                <li><a href="/dashboardAddGame.html">
+                    <span class="nav-icon">➕</span>
+                    Add New Game
+                </a></li>
+                <li><a href="/categoriesAdmin.html">
+                    <span class="nav-icon">📂</span>
+                    Categories
+                </a></li>
+                <li><a href="add-category.html">
+                    <span class="nav-icon">🏷️</span>
+                    Add Category
+                </a></li>
+                <li><a href="/user-management.html">
+                    <span class="nav-icon">👥</span>
+                    Users Management
+                </a></li>
+                <li><a href="/statistics.html">
+                    <span class="nav-icon">📈</span>
+                    Statistics
+                </a></li>
+                <li><a href="/admin/settings">
+                    <span class="nav-icon">⚙️</span>
+                    Settings
+                </a></li>
+                <li><a href="/admin/reports">
+                    <span class="nav-icon">📋</span>
+                    Reports
+                </a></li>
+                <li><a href="/logout" style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <span class="nav-icon">🚪</span>
+                    Logout
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">🎮 Admin Dashboard</h1>
+                <p class="dashboard-subtitle">Welcome back! Here's what's happening with ImiGames today.</p>
+                
+                <div class="welcome-message">
+                    <strong>👋 Good Morning, Admin!</strong> You have 3 pending game approvals and 12 new user registrations today.
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div class="admin-alert info">
+                <strong>ℹ️ System Update:</strong> Server maintenance scheduled for tonight at 2:00 AM EST. Expected downtime: 30 minutes.
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">🎮</span>
+                    <div class="stat-number" id="totalGames">164</div>
+                    <div class="stat-label">Total Games</div>
+                    <div class="stat-change positive">+8 this week</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">👥</span>
+                    <div class="stat-number" id="totalUsers">25,847</div>
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-change positive">+1,234 this month</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">▶️</span>
+                    <div class="stat-number" id="totalPlays">1.2M</div>
+                    <div class="stat-label">Total Game Plays</div>
+                    <div class="stat-change positive">+15.7% from last month</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">⭐</span>
+                    <div class="stat-number" id="avgRating">4.7</div>
+                    <div class="stat-label">Average Rating</div>
+                    <div class="stat-change positive">+0.2 this month</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">📂</span>
+                    <div class="stat-number" id="totalCategories">6</div>
+                    <div class="stat-label">Game Categories</div>
+                    <div class="stat-change">No change</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">🎯</span>
+                    <div class="stat-number" id="dailyActive">3,421</div>
+                    <div class="stat-label">Daily Active Users</div>
+                    <div class="stat-change positive">+8.3% today</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>🚀</span>
+                        Quick Actions
+                    </h2>
+                </div>
+                
+                <div class="quick-actions">
+                    <a href="/admin/add-game" class="quick-action-card">
+                        <span class="quick-action-icon">➕</span>
+                        <div class="quick-action-title">Add New Game</div>
+                        <div class="quick-action-desc">Upload and configure a new game</div>
+                    </a>
+                    
+                    <a href="/admin/games?status=pending" class="quick-action-card">
+                        <span class="quick-action-icon">⏳</span>
+                        <div class="quick-action-title">Review Pending</div>
+                        <div class="quick-action-desc">3 games awaiting approval</div>
+                    </a>
+                    
+                    <a href="/admin/users?new=true" class="quick-action-card">
+                        <span class="quick-action-icon">👤</span>
+                        <div class="quick-action-title">New Users</div>
+                        <div class="quick-action-desc">12 new registrations today</div>
+                    </a>
+                    
+                    <a href="/admin/reports" class="quick-action-card">
+                        <span class="quick-action-icon">📊</span>
+                        <div class="quick-action-title">Generate Report</div>
+                        <div class="quick-action-desc">Create analytics report</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📝</span>
+                        Recent Activity
+                    </h2>
+                    <a href="/admin/activity" class="section-action">View All</a>
+                </div>
+                
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <span class="activity-icon">🎮</span>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>New game added:</strong> "Space Math Adventure" by Alex Chen</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-icon">👤</span>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>User registration:</strong> sarah.parent@email.com joined</div>
+                            <div class="activity-time">3 hours ago</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-icon">⭐</span>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>High rating received:</strong> "Puzzle Master" got 5-star review</div>
+                            <div class="activity-time">5 hours ago</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-icon">🛠️</span>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>Game updated:</strong> "Math Adventure" - bug fixes applied</div>
+                            <div class="activity-time">6 hours ago</div>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-icon">📊</span>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>Analytics report:</strong> Weekly performance report generated</div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>📈</span>
+                        Analytics Overview
+                    </h2>
+                    <a href="/admin/statistics" class="section-action">Detailed Analytics</a>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Daily Active Users</h3>
+                        <div class="chart-placeholder">
+                            📊 Chart will be rendered here<br>
+                            <small>In real implementation: Chart.js or similar</small>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3 class="chart-title">Games by Category</h3>
+                        <div class="chart-placeholder">
+                            🥧 Pie chart will be rendered here<br>
+                            <small>In real implementation: Chart.js or similar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Games -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>🎮</span>
+                        Recently Added Games
+                    </h2>
+                    <a href="/admin/games" class="section-action">Manage All Games</a>
+                </div>
+                
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Game Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Plays</th>
+                            <th>Rating</th>
+                            <th>Date Added</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Space Math Adventure</strong></td>
+                            <td>Educational</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>1,234</td>
+                            <td>⭐ 4.8</td>
+                            <td>2024-12-22</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ocean Explorer</strong></td>
+                            <td>Adventure</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>0</td>
+                            <td>-</td>
+                            <td>2024-12-21</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Creative Art Studio Pro</strong></td>
+                            <td>Creative</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>892</td>
+                            <td>⭐ 4.6</td>
+                            <td>2024-12-20</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Logic Puzzle Challenge</strong></td>
+                            <td>Puzzle</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>2,156</td>
+                            <td>⭐ 4.9</td>
+                            <td>2024-12-19</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Animate counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            
+            counters.forEach(counter => {
+                const target = counter.textContent;
+                let numericValue;
+                let suffix = '';
+                
+                if (target.includes('M')) {
+                    numericValue = parseFloat(target.replace('M', '')) * 1000000;
+                    suffix = 'M';
+                } else if (target.includes('K')) {
+                    numericValue = parseFloat(target.replace('K', '')) * 1000;
+                    suffix = 'K';
+                } else if (target.includes('.')) {
+                    numericValue = parseFloat(target);
+                    counter.style.animationDelay = '1s';
+                    return; // Skip animation for decimal values
+                } else {
+                    numericValue = parseInt(target.replace(/,/g, ''));
+                }
+                
+                let current = 0;
+                const increment = numericValue / 50;
+                counter.textContent = '0';
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= numericValue) {
+                        current = numericValue;
+                        clearInterval(timer);
+                    }
+                    
+                    let displayValue;
+                    if (suffix === 'M') {
+                        displayValue = (current / 1000000).toFixed(1) + 'M';
+                    } else if (suffix === 'K') {
+                        displayValue = (current / 1000).toFixed(0) + 'K';
+                    } else {
+                        displayValue = Math.floor(current).toLocaleString();
+                    }
+                    
+                    counter.textContent = displayValue;
+                }, 40);
+            });
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate counters after a short delay
+            setTimeout(animateCounters, 500);
+            
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.stat-card, .quick-action-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.05)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // Auto-refresh stats every 30 seconds (in real implementation)
+            setInterval(() => {
+                // In real implementation, fetch updated stats from server
+                console.log('Refreshing dashboard stats...');
+            }, 30000);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey) {
+                switch(e.code) {
+                    case 'KeyG':
+                        e.preventDefault();
+                        window.location.href = '/admin/games';
+                        break;
+                    case 'KeyA':
+                        e.preventDefault();
+                        window.location.href = '/admin/add-game';
+                        break;
+                    case 'KeyU':
+                        e.preventDefault();
+                        window.location.href = '/admin/users';
+                        break;
+                    case 'KeyS':
+                        e.preventDefault();
+                        window.location.href = '/admin/statistics';
+                        break;
+                }
+            }
+        });
+
+        // Add notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `admin-alert ${type}`;
+            notification.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '10000';
+            notification.style.maxWidth = '300px';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        // Simulate real-time updates (for demo)
+        setInterval(() => {
+            const activities = [
+                { icon: '👤', text: 'New user registered: parent.user@email.com', time: 'Just now' },
+                { icon: '🎮', text: 'Game "Puzzle Fun" reached 1000 plays!', time: '2 minutes ago' },
+                { icon: '⭐', text: 'New 5-star review for "Math Adventure"', time: '5 minutes ago' }
+            ];
+            
+            // In real implementation, this would update the activity list
+            console.log('New activity:', activities[Math.floor(Math.random() * activities.length)]);
+        }, 60000); // Every minute
+    </script>
+</body>
+</html>
